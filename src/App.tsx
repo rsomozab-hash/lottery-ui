@@ -11,8 +11,8 @@ function App() {
     chainId
   } = useWallet();
 
-  const lotteryAddress = "0x927fEAE452cdBc26e6fFFf8ecF8C6Cbda5CBD95d";
-  const vrfAddress = "0x4FF0Da243DFEAf3097Ce78472a1ee8e37a18210D";
+  const lotteryAddress = "0xdD91f5b10b220E779e9CC60B560FEE6cF36DAbaD";
+  const vrfAddress = "0x21b069640B647dbabB7A06519Cfd1329c51CB23b";
 
   return (
     <div style={{ padding: 40 }}>
