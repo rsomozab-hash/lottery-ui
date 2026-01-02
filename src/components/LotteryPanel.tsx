@@ -48,32 +48,34 @@ export default function LotteryPanel({ signer, contractAddress }: Props) {
   /* ------------------ ADMIN ------------------ */
 
   async function handleStartLottery() {
-    try {
-      setLoading(true);
-      const tx = await contract?.startLottery({gasLimit: 1_000_000});
-      await tx.wait();
-        
-      alert("🎉 Lotería iniciada");
-    } catch (e: any) {
-      console.error(e);
+try {
+    setLoading(true);
 
-      if (e?.reason === "Lottery already finished") {
-        alert("La lotería estaba terminada → avanzando…");
+    const lotteryId = await contract?.currentLotteryId();
+    const lottery = await contract?.lotteries(lotteryId);
 
-        try {
-          const txNext = await contract?.nextLottery();
-          await txNext.wait();
-          alert("➡️ Nueva lotería creada. Vuelve a iniciarla.");
-        } catch (err: any) {
-          console.error(err);
-          alert(err?.reason ?? "Error en nextLottery");
-        }
-      } else {
-        alert(e?.reason ?? "Error al iniciar la lotería");
-      }
-    } finally {
-      setLoading(false);
+    if (lottery.finished) {
+      const txNext = await contract?.nextLottery();
+      await txNext.wait();
+      alert("➡️ Nueva lotería creada");
+      return;
     }
+
+    if (lottery.vrfRequestId !== 0n) {
+      alert("⚠️ Esta lotería ya está iniciada");
+      return;
+    }
+
+    const tx = await contract?.startLottery({ gasLimit: 1_000_000 });
+    await tx.wait();
+    alert("🎉 Lotería iniciada correctamente");
+
+  } catch (e: any) {
+    console.error(e);
+    alert(e?.reason ?? "Error al iniciar la lotería");
+  } finally {
+    setLoading(false);
+  }
   }
 
   async function finalizeLottery() {
