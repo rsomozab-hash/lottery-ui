@@ -43,6 +43,7 @@ export default function VRFPanel({ signer, contractAddress }: any) {
   useEffect(() => {
     const handler = (requestId: bigint, randomWords: bigint[]) => {
       console.log("VRF fulfilled:", requestId.toString());
+      console.log("RandomWords: ", randomWords.toString());
       setLoading(false);
     };
 

@@ -10,17 +10,19 @@ export function useWallet() {
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
+  const ethereum = window.ethereum;
 
   async function requestNetworkSwitch() {
+    if (!ethereum) return;
     try {
-      await window.ethereum.request({
+      await ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: SEPOLIA_CHAIN_ID_HEX }],
       });
     } catch (err: any) {
       // En caso de que Sepolia no esté agregada en MetaMask
       if (err.code === 4902) {
-        await window.ethereum.request({
+        await ethereum.request({
           method: "wallet_addEthereumChain",
           params: [
             {
@@ -43,15 +45,15 @@ export function useWallet() {
   }
 
   async function connect() {
-    if (!window.ethereum) {
+    if (!ethereum) {
       alert("MetaMask no está instalada");
       return;
     }
 
     // Pedir conexión a la wallet
-    await window.ethereum.request({ method: "eth_requestAccounts" });
+    await ethereum.request({ method: "eth_requestAccounts" });
 
-    const _provider = new ethers.BrowserProvider(window.ethereum);
+    const _provider = new ethers.BrowserProvider(ethereum);
     const _signer = await _provider.getSigner();
     const _address = await _signer.getAddress();
     const network = await _provider.getNetwork();
@@ -70,13 +72,13 @@ export function useWallet() {
 
   // AUTO-DETECTAR CAMBIO DE RED O CUENTA
   useEffect(() => {
-    if (!window.ethereum) return;
+    if (!ethereum) return;
 
-    window.ethereum.on("accountsChanged", () => {
+    ethereum.on("accountsChanged", () => {
       connect();
     });
 
-    window.ethereum.on("chainChanged", () => {
+    ethereum.on("chainChanged", () => {
       window.location.reload();
     });
   }, []);
